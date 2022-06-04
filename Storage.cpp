@@ -102,7 +102,6 @@ namespace ECE141 {
 		// Find end count
 		stream.seekg(0, std::ios::end);
 		uint64_t end = stream.tellg();
-		const auto fsize = (end - begin);
 
 		return static_cast<uint64_t>(std::ceil((end - begin) / kBlockSize));
 	}

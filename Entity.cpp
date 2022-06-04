@@ -46,7 +46,7 @@ namespace ECE141 {
 		entityIndex = entityIndex;
 		autoincr = aCopy.autoincr;
 
-		std::cout << "AutoIncrement: " << autoincr << "\n";
+		//std::cout << "AutoIncrement: " << autoincr << "\n";
 		return *this;
 	}
 

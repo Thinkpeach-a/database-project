@@ -897,11 +897,11 @@ namespace ECE141 {
       theStream1 << "drop database " << theDBName2 << ";\n";
       theStream1 << "use " << theDBName1 << ";\n";
 
-      theStream1 << "select * from Users\n";
+      theStream1 << "select * from Users;\n";
       insertFakeUsers(theStream1,30,1);
       
       theStream1 << "DELETE from Users where age>60;\n";
-      theStream1 << "select * from Users\n";
+      theStream1 << "select * from Users;\n";
       insertFakeUsers(theStream1,30,1);
 
       theStream1 << "show index id from Users;\n";

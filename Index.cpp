@@ -46,7 +46,7 @@ namespace ECE141 {
 			uint64_t theCurrentBlockIndex = blockNum;
 
 			Block theBlock(BlockType::index_block, entityId);
-			std::cout << "\n Indices Saved " << data.size() << "\n";
+			//std::cout << "\n Indices Saved " << data.size() << "\n";
 			for (auto& theKVPair : data) {
 				//Data: uint16_t ValueType + Value as string + uint64_t blockNumber
 				
@@ -93,7 +93,7 @@ namespace ECE141 {
 			}
 			theNextBlockInd = theBlock.header.nextPtr;
 		}
-		std::cout << "\n Indices Loaded " << data.size() << "\n";
+		//std::cout << "\n Indices Loaded " << data.size() << "\n";
 	}
 
 	void Index::encode(Block& aBlock)
