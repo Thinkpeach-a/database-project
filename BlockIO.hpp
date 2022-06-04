@@ -49,7 +49,7 @@ namespace ECE141 {
 			type = static_cast<char>(BlockType::free_block);
 		}
 
-		BlockHeader& operator=(const BlockHeader& aCopy) {
+		inline BlockHeader& operator=(const BlockHeader& aCopy) {
 			type = aCopy.type;
 			index = aCopy.index;
 			prevPtr = aCopy.prevPtr;
@@ -59,7 +59,7 @@ namespace ECE141 {
 			return *this;
 		}
 
-		BlockHeader& operator<<(std::fstream& aStream);
+		inline BlockHeader& operator<<(std::fstream& aStream);
 
 		char   type;     //char version of block type
 		uint64_t index;
@@ -108,7 +108,7 @@ namespace ECE141 {
 
 		Block(const Block& aCopy);
 
-		Block& operator=(const Block& aCopy);
+		inline Block& operator=(const Block& aCopy);
 
 		/// <summary>
 		/// Writes basic type to payload. Helper function to construct blocks.

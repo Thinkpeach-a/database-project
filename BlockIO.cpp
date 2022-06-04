@@ -95,8 +95,9 @@ namespace ECE141 {
 	}
 	// USE: write data a given block (after seek)
 	void BlockIO::writeBlock(uint64_t aBlockNum, Block& aBlock) {
-
-		cache->put(aBlockNum, aBlock);		
+		if (cache->maxSize() != 0) {
+			cache->put(aBlockNum, aBlock);
+		}
 
 		stream.seekp(aBlockNum * kBlockSize, std::ios::beg);
 		stream << aBlock;
@@ -121,8 +122,10 @@ namespace ECE141 {
 			stream.read(reinterpret_cast<char*>(&(aBlock.payload)), kPayloadSize * CHAR_LEN);
 			stream.flush();
 
-			cache->put(aBlockNum, aBlock);
-
+			if (cache->maxSize() != 0) {
+				cache->put(aBlockNum, aBlock);
+			}
+			
 			if (!stream.good()) { throw Errors::readError; }
 		}
 		

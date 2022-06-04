@@ -1017,7 +1017,7 @@ namespace ECE141 {
       
       if(theResult) {
         std::string tempStr=theOutput.str();
-        output << "output \n" << tempStr << "\n";
+        //output << "output \n" << tempStr << "\n"; //Uncomment
         //std::cout << tempStr << "\n";
         
         Responses theResponses;
@@ -1058,7 +1058,7 @@ namespace ECE141 {
       if(theResult) {
         double theAvgTime=std::accumulate(
                 theTimes.begin(), theTimes.end(), 0.0) / theTimes.size();
-        
+        std::cout << "No Cache Time: " << theAvgTime << "\n";
         Config::setCacheSize(aType, aCapacity);
         theTimes.clear();
         for(size_t i=0;i<5;i++) {
@@ -1073,6 +1073,7 @@ namespace ECE141 {
         if(theResult) {
           double theAvgTime2=std::accumulate(
                   theTimes.begin(), theTimes.end(), 0.0) / theTimes.size();
+          std::cout << "With Cache Time: " << theAvgTime << "\n";
           return theAvgTime2<theAvgTime;
         }
       }

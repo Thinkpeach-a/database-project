@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <iterator>
 
 namespace ECE141 {
@@ -11,45 +12,52 @@ namespace ECE141 {
 	public:
 
 		//OCF
-		LRUCache(size_t aMaxSize) : maxsize{aMaxSize} {};
+		LRUCache(size_t aMaxSize) : maxsize{ aMaxSize } {};
 
-		void    put(const KeyT& aKey, const ValueT& aValue);
+		bool put(const KeyT& aKey, const ValueT& aValue);
 		ValueT& get(const KeyT& aKey);
 		bool    contains(const KeyT& aKey) const;
 		size_t  size() const; //current size
+		size_t  maxSize() const { return maxsize; }
 
 	protected:
 		size_t maxsize; //prevent cache from growing past this size...
 
 		//data members here...
-		std::map<KeyT, bool> usedMap;
-		std::map<KeyT, ValueT> cacheMap;
+		std::unordered_map<KeyT, bool> usedMap;
+		std::unordered_map<KeyT, ValueT> cacheMap;
 	};
 
 	template<typename KeyT, typename ValueT>
-	inline void LRUCache<KeyT, ValueT>::put(const KeyT& aKey, const ValueT& aValue)
+	inline bool LRUCache<KeyT, ValueT>::put(const KeyT& aKey, const ValueT& aValue)
 	{
-		if (cacheMap.size() == maxsize && maxsize != 0) { //If cache is full, replace
+		bool theMissFlag = false;
+
+		if (cacheMap.size() == maxsize) { //If cache is full, replace
+
 			auto theIter = usedMap.begin();
 			while (theIter != usedMap.end()) {
 				if (theIter->second == false) {
 					cacheMap.erase(theIter->first);
 					theIter = usedMap.erase(theIter);
+					theMissFlag = true;
 				}
 				else {
 					++theIter;
 					theIter->second = false;
 				}
 			}
-
-			if (theIter == usedMap.end()) {
+			if (theIter == usedMap.end()) { // if all blocks were recently used, remove first one
 				cacheMap.erase(cacheMap.begin());
 				usedMap.erase(usedMap.begin());
+				theMissFlag = true;
 			}
 		}
 		// add new things to map
 		usedMap[aKey] = false;
 		cacheMap[aKey] = aValue;
+		return theMissFlag;
+
 	}
 
 	template<typename KeyT, typename ValueT>
