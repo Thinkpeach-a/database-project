@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 #include <unordered_map>
-#include <iterator>
+//#include <iterator>
 
 namespace ECE141 {
 	template<typename KeyT, typename ValueT>
@@ -14,11 +14,11 @@ namespace ECE141 {
 		//OCF
 		LRUCache(size_t aMaxSize) : maxsize{ aMaxSize } {};
 
-		bool put(const KeyT& aKey, const ValueT& aValue);
+		void    put(const KeyT& aKey, const ValueT& aValue);
 		ValueT& get(const KeyT& aKey);
 		bool    contains(const KeyT& aKey) const;
 		size_t  size() const; //current size
-		size_t  maxSize() const { return maxsize; }
+		size_t  maxSize() { return maxsize; }
 
 	protected:
 		size_t maxsize; //prevent cache from growing past this size...
@@ -29,35 +29,36 @@ namespace ECE141 {
 	};
 
 	template<typename KeyT, typename ValueT>
-	inline bool LRUCache<KeyT, ValueT>::put(const KeyT& aKey, const ValueT& aValue)
+	inline void LRUCache<KeyT, ValueT>::put(const KeyT& aKey, const ValueT& aValue)
 	{
-		bool theMissFlag = false;
+		//bool theMissFlag = false;
+		if (maxsize != 0) {
+			if (cacheMap.size() == maxsize) { //If cache is full, replace
 
-		if (cacheMap.size() == maxsize) { //If cache is full, replace
-
-			auto theIter = usedMap.begin();
-			while (theIter != usedMap.end()) {
-				if (theIter->second == false) {
-					cacheMap.erase(theIter->first);
-					theIter = usedMap.erase(theIter);
-					theMissFlag = true;
+				auto theIter = usedMap.begin();
+				while (theIter != usedMap.end()) {
+					if (theIter->second == false) {
+						cacheMap.erase(theIter->first);
+						theIter = usedMap.erase(theIter);
+						//theMissFlag = true;
+						break;
+					}
+					else {
+						++theIter;
+						theIter->second = false;
+					}
 				}
-				else {
-					++theIter;
-					theIter->second = false;
+				if (theIter == usedMap.end()) { // if all blocks were recently used, remove first one
+					cacheMap.erase(cacheMap.begin());
+					usedMap.erase(usedMap.begin());
+					//theMissFlag = true;
 				}
 			}
-			if (theIter == usedMap.end()) { // if all blocks were recently used, remove first one
-				cacheMap.erase(cacheMap.begin());
-				usedMap.erase(usedMap.begin());
-				theMissFlag = true;
-			}
+			// add new things to map
+			usedMap[aKey] = false;
+			cacheMap[aKey] = aValue;
+			//return theMissFlag;
 		}
-		// add new things to map
-		usedMap[aKey] = false;
-		cacheMap[aKey] = aValue;
-		return theMissFlag;
-
 	}
 
 	template<typename KeyT, typename ValueT>

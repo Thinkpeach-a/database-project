@@ -9,6 +9,7 @@
 #include "Application.hpp"
 #include "Tokenizer.hpp"
 #include <memory>
+#include <exception>
 #include <algorithm>
 #include <vector>
 #include "Config.hpp"
@@ -290,7 +291,8 @@ namespace ECE141 {
 			}
 			return theError;
 		}
-		catch (...) {
+		catch (std::exception& theException) {
+			std::cout << theException.what() << '\n';
 			return Errors::unknownError;
 		}
 
