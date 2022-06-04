@@ -83,7 +83,7 @@ namespace ECE141 {
 		Block theBlock;
 		// Save entities
 		for (auto& theEntityPair : entityMap) {
-			
+
 			uint64_t theBlockIndex = entityBlockMap[theEntityPair.first];
 			storage->readBlock(theBlockIndex, theBlock);
 			theBlock.reset();
@@ -116,13 +116,13 @@ namespace ECE141 {
 		entityBlockMap.erase(aTableName);
 
 		indexMap.erase(aTableName);
-		
-		
+
+
 		size_t theIndexBlock = indexBlockMap[aTableName];
 		indexBlockMap.erase(aTableName);
 
 		storage->releaseBlockUntil([](const Block&, uint64_t) {return true; }, theIndexBlock);
-		
+
 
 		updateEntityMetaBlock();
 	}
@@ -145,8 +145,8 @@ namespace ECE141 {
 		// Add data to memory
 		entityBlockMap[theName] = theIndex;
 		entityMap[theName] = std::make_shared<Entity>(anEntity);
-		
-		
+
+
 		//Construct Index
 		uint64_t theIndexBlockNum = storage->getFreeBlockIndex();
 		auto     thePrimaryKey = anEntity.getPrimaryKey();
@@ -175,7 +175,7 @@ namespace ECE141 {
 		auto theIndexIter = indexBlockMap.begin();
 
 		Entity theEntity;
-		
+
 		// Create 2 Blocks so if read error occurs, does not affect
 		// the rest of the progress
 		Block  theEntityBlock;
@@ -191,12 +191,12 @@ namespace ECE141 {
 			storage->readBlock(theEntityPair.second, theEntityBlock);
 
 			theEntity.decode(theEntityBlock);
-			
+
 
 			entityMap[theEntityName] = std::make_shared<Entity>(theEntity);
 			indexMap[theEntityName] = std::make_shared<Index>(storage, LoadIndex(), theEntity.getPrimaryKey()->getName(), indexBlockMap[theEntityName]);
 		}
-		
+
 
 
 	}
@@ -232,7 +232,7 @@ namespace ECE141 {
 			aBlock.writeToPayload(theIndexMapIter->second);
 		}
 
-		
+
 	}
 
 	//decode the block0 into string and index
@@ -241,7 +241,7 @@ namespace ECE141 {
 		std::string theKey;
 		uint64_t    theEntityValue;
 		uint64_t    theIndexValue;
-		
+
 
 		aBlock.readFromPayload(version);
 		aBlock.readFromPayload(entityCount);
@@ -329,16 +329,14 @@ namespace ECE141 {
 				//TODO: Wait for update filter interface with scoping
 				if (aFilter.matches(theTempRow.getData())) {
 					aRowsList.push_back(std::make_shared<Row>(theTempRow));
-					//theRowsList.push_back(theTempRow);
 				}
 
-				//aRowsList.push_back(std::make_unique<Row>(theTempRow));
 				return aBlock.header.nextPtr;
 				}, theRowStart);
 		}
 	}
 
-	void Database::applyJoin(RowsPtr& aLeftRows, RowsPtr& aRightRows, RowsPtr& aOutputRows ,SQLQuery& aQuery)
+	void Database::applyJoin(RowsPtr& aLeftRows, RowsPtr& aRightRows, RowsPtr& aOutputRows, SQLQuery& aQuery)
 	{
 		std::vector<std::string> theTableHeader;
 		std::string theEntityName;
@@ -358,11 +356,16 @@ namespace ECE141 {
 		for (auto& theLeftRow : aLeftRows) {
 			size_t theCount = 0;
 			while (theRightTableIter != aRightRows.end()) {
-				//TODO: Fix something
-				if (theLeftRow->getData()[aQuery.join.leftValue] == (*theRightTableIter)->getData()[aQuery.join.rightValue]) {
+				Value theLeftValue = theLeftRow->getData()[aQuery.join.leftValue];
+				Value theRightValue = (*theRightTableIter)->getData()[aQuery.join.rightValue];
+				
+				if (theLeftValue > theRightValue) {
+					++theRightTableIter;
+				}
+				else if (theLeftValue == theRightValue) {
 					aOutputRows.push_back(buildJoinedRow(theLeftRow, theLeftEntity, *theRightTableIter, theRightEntity));
 					++theRightTableIter;
-					theCount++;
+					++theCount;
 				}
 				else {
 					break;
@@ -420,239 +423,237 @@ namespace ECE141 {
 		}
 		theTable.show(anOutput);
 		anOutput << Helpers::rowsInSet(theLimit, Config::getTimer().elapsed());
-}
-
-std::shared_ptr<Row> Database::buildJoinedRow(std::shared_ptr<Row>& aFirstRow, Entity& aFirstEntity,
-	std::shared_ptr<Row>& aSecondRow, Entity& aSecondEntity)
-{
-	Row aRow;
-	auto& theFirstData = aFirstRow->getData();
-	auto& theSecondData = aSecondRow->getData();
-
-
-
-	for (auto& theAttribute : aFirstEntity.getAttributes()) {
-		aRow.set(theAttribute.getName(), aFirstRow->getData()[theAttribute.getName()]);
 	}
 
+	std::shared_ptr<Row> Database::buildJoinedRow(std::shared_ptr<Row>& aFirstRow, Entity& aFirstEntity,
+		std::shared_ptr<Row>& aSecondRow, Entity& aSecondEntity)
+	{
+		Row aRow;
+		auto& theFirstData = aFirstRow->getData();
+		auto& theSecondData = aSecondRow->getData();
 
-	if (aSecondRow) {
-		for (auto& theAttribute : aSecondEntity.getAttributes()) {
-			aRow.set(theAttribute.getName(), aSecondRow->getData()[theAttribute.getName()]);
+		for (auto& theAttribute : aFirstEntity.getAttributes()) {
+			aRow.set(theAttribute.getName(), aFirstRow->getData()[theAttribute.getName()]);
 		}
-	}
-	else {
-		for (auto& theAttribute : aSecondEntity.getAttributes()) {
-			aRow.set(theAttribute.getName(), NullType());
-		}
-	}
-	
-
-	return std::make_shared<Row>(aRow);
-}
-
-
-
-
-void Database::showTables(std::ostream& aStream) {
-	TableView theTable({ "Tables in " + name }, { 24 });
-	for (auto const& pair : entityBlockMap) {
-		theTable.insertRow(pair.first);
-	}
-
-	theTable.insertFooter(Helpers::rowsInSet(entityBlockMap.size(), Config::getTimer().elapsed()));
-	theTable.show(aStream);
-}
-
-
-void Database::describeTable(std::string anEntityName, std::ostream& anOuptut) {
-	//"Field","Type","Null","Key","Default","Extra"
-	// Build Table
-	TableView theTable{ entityHeaderList, entityWidthList };
-	std::string theType;
-	uint64_t theSize;
-
-	if (entityMap.count(anEntityName) == 0) { throw Errors::unknownTable; }
-
-	Entity& theEntity = *entityMap[anEntityName];
-	for (auto theIter = theEntity.getAttributes().begin(); theIter != theEntity.getAttributes().end(); ++theIter) {
-		theType = dataTypesWords.at(theIter->getType());
-		theSize = theIter->getSize();
-
-		if (0 != theSize) { theType += "(" + std::to_string(theSize) + ")"; } // if varchar
-
-		// Variadically insert values
-		theTable.insertRow(theIter->getName(),
-			theType,
-			boolToWords.at(theIter->isNullable()),
-			boolToWords.at(theIter->isPrimaryKey()),
-			BasicTypes::toString(theIter->getDefault()),
-			theIter->isAutoIncrement() ? "Auto Increment" : "");
-	}
-	theTable.insertFooter(Helpers::rowsInSet(theEntity.getAttributes().size(), Config::getTimer().elapsed()));
-	theTable.show(anOuptut);
-}
-
-void Database::selectFromTable(SQLQuery& aQuery, std::ostream& anOutput)
-{
-	if (!(entityMap.count(aQuery.EntityName) > 0)) {
-		throw Errors::unknownEntity;
-	}
-
-	RowsPtr theLeftRows;
-	RowsPtr theRightRows;
-	RowsPtr theOutputRows;
-
-	if (aQuery.hasJoin) {
-		conditionalLoad(aQuery.join.leftTable, aQuery.whereFilter, theLeftRows);
-		conditionalLoad(aQuery.join.rightTable, aQuery.whereFilter, theRightRows);
-
-		applyJoin(theLeftRows, theRightRows, theOutputRows, aQuery);
-	}
-	else {
-		conditionalLoad(aQuery.EntityName, aQuery.whereFilter, theOutputRows);
-	}
-
-	// Order by
-	if (aQuery.orderNames.size() != 0) {
-		sortRows(aQuery.orderNames[0], theOutputRows);
-	}
-	// Apply Limit
-	applyLimit(theOutputRows, anOutput, aQuery);
-}
-
-void Database::updateRows(SQLQuery& aQuery, KeyValues aReplaceMap, std::ostream& anOuptut)
-{
-	uint64_t theRowCount = 0;
-
-	if (entityBlockMap.count(aQuery.EntityName) == 0) { throw Errors::unknownTable; }
-
-	Row theRow;
-	storage->iterate([&](Block& aBlock, uint64_t anIndex) {
-
-		theRow.decode(aBlock);
-		uint64_t theNextPtr = aBlock.header.nextPtr;
-
-		if (!aQuery.hasWhere || aQuery.whereFilter.matches(theRow.getData())) {
-			//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
-
-			for (auto& thePairs : aReplaceMap) {
-				theRow.set(thePairs.first, thePairs.second);
-			}
-			theRow.encode(aBlock.reset());
-			storage->writeBlock(anIndex, aBlock);
-			++theRowCount;
-		}
-
-		return theNextPtr;
-
-		}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
-
-	anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
-}
-
-void Database::deleteRows(SQLQuery& aQuery, std::ostream& anOuptut)
-{
-	uint64_t theRowCount = 0;
-
-	if (entityBlockMap.count(aQuery.EntityName) == 0) { throw Errors::unknownTable; }
-	std::string thePrimaryKey = entityMap[aQuery.EntityName]->getPrimaryKey()->getName();
-
-	Row theRow;
-	storage->iterate([&](Block& aBlock, uint64_t anIndex) {
-
-		theRow.decode(aBlock);
-		uint64_t theNextPtr = aBlock.header.nextPtr;
-
-		if (!aQuery.hasWhere || aQuery.whereFilter.matches(theRow.getData())) {
-			//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
-			storage->removeBlock(anIndex);
-			indexMap[aQuery.EntityName]->erase(theRow.getData()[thePrimaryKey]);
-
-			++theRowCount;
-		}
-
-		return theNextPtr;
-
-		}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
-
-	anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
-}
-
-void Database::showIndices(std::string aTableName, std::string aKeyName, std::ostream& anOutput)
-{
-	TableView theTable({ aKeyName, "Block Number"}, {20, 20});
-
-	uint64_t theCount = 0;
-	indexMap[aTableName]->eachKV([&](const Value& aValue, uint64_t theBlockIndex) {
-		theTable.insertRow(BasicTypes::toString(aValue), theBlockIndex);
-		++theCount;
-		return true;
-		});
-	theTable.show(anOutput);
-	anOutput << Helpers::rowsInSet(theCount, Config::getTimer().elapsed());
-
-}
-
-void Database::showIndexes(std::ostream& anOutput)
-{
-	TableView theTable({ "table", "fields(s)" }, {20, 20});
-	size_t theCount = 0;
-	for (auto& theIndex : indexMap) {
-		theTable.insertRow(theIndex.first, theIndex.second->getKeyName());
-		++theCount;
-	}
-	theTable.show(anOutput);
-	anOutput << Helpers::rowsInSet(theCount, Config::getTimer().elapsed());
-
-}
-
-void Database::insertRows(std::string aName, std::vector<std::string> aNameList,
-	std::vector<std::vector<Value>> aValuesList) {
-	if (entityMap.count(aName) > 0) {
-		RowsOpt theRows;
-		uint64_t theBlockIndex;
-		Entity& theEntity = *entityMap[aName];
-		Index& theIndex = *indexMap[aName];
-		theEntity.buildRows(aNameList, aValuesList, theRows);
-
-		for (auto& aRow : theRows) {
-			if (aRow) {
-				//write row as block
-				// TODO: Refactor block for reset capability
-				Block theBlock; // Need to make a new block for writing storage
-				aRow.value().entityId = theEntity.getEntityIndex();
-				aRow.value().encode(theBlock);
-				theBlockIndex = storage->writeNewBlock(theBlock, entityBlockMap[aName]);
-
-				// Add to index
-				theIndex.insertKV(aRow.value().getData()[theEntity.getPrimaryKey()->getName()], theBlockIndex);
-			}
-			else {
-				throw Errors::invalidArguments;
+		if (aSecondRow) {
+			for (auto& theAttribute : aSecondEntity.getAttributes()) {
+				aRow.set(theAttribute.getName(), aSecondRow->getData()[theAttribute.getName()]);
 			}
 		}
+		else {
+			for (auto& theAttribute : aSecondEntity.getAttributes()) {
+				aRow.set(theAttribute.getName(), NullType());
+			}
+		}
+
+		return std::make_shared<Row>(aRow);
 	}
-}
 
-// USE: Call this to dump the db for debug purposes...
-void Database::dump(std::ostream& anOutput) {
-	TableView theTable(dbDumpHeaders, dbDumpWidths);
-	Block theBlock;
 
-	storage->each([&](const Block& aBlock, uint64_t anIndex) {
-		theTable.insertRow(anIndex,
-			typeStringMap.at(aBlock.header.type),
-			aBlock.header.index,
-			aBlock.header.prevPtr,
-			aBlock.header.nextPtr);
-		return true;
-		});
 
-	theTable.show(anOutput);
-}
 
-uint64_t Database::getBlockCount() {
-	return storage->getUsedBlockCount();
-}
+	void Database::showTables(std::ostream& aStream) {
+		TableView theTable({ "Tables in " + name }, { 24 });
+		for (auto const& pair : entityBlockMap) {
+			theTable.insertRow(pair.first);
+		}
+
+		theTable.insertFooter(Helpers::rowsInSet(entityBlockMap.size(), Config::getTimer().elapsed()));
+		theTable.show(aStream);
+	}
+
+
+	void Database::describeTable(std::string anEntityName, std::ostream& anOuptut) {
+		//"Field","Type","Null","Key","Default","Extra"
+		// Build Table
+		TableView theTable{ entityHeaderList, entityWidthList };
+		std::string theType;
+		uint64_t theSize;
+
+		if (entityMap.count(anEntityName) == 0) { throw Errors::unknownTable; }
+
+		Entity& theEntity = *entityMap[anEntityName];
+		for (auto theIter = theEntity.getAttributes().begin(); theIter != theEntity.getAttributes().end(); ++theIter) {
+			theType = dataTypesWords.at(theIter->getType());
+			theSize = theIter->getSize();
+
+			if (0 != theSize) { theType += "(" + std::to_string(theSize) + ")"; } // if varchar
+
+			// Variadically insert values
+			theTable.insertRow(theIter->getName(),
+				theType,
+				boolToWords.at(theIter->isNullable()),
+				boolToWords.at(theIter->isPrimaryKey()),
+				BasicTypes::toString(theIter->getDefault()),
+				theIter->isAutoIncrement() ? "Auto Increment" : "");
+		}
+		theTable.insertFooter(Helpers::rowsInSet(theEntity.getAttributes().size(), Config::getTimer().elapsed()));
+		theTable.show(anOuptut);
+	}
+
+	void Database::selectFromTable(SQLQuery& aQuery, std::ostream& anOutput)
+	{
+		if (!(entityMap.count(aQuery.EntityName) > 0)) {
+			throw Errors::unknownEntity;
+		}
+
+		RowsPtr theLeftRows;
+		RowsPtr theRightRows;
+		RowsPtr theOutputRows;
+
+		if (aQuery.hasJoin) {
+
+			if (!(entityMap.count(aQuery.join.rightTable) > 0)) { throw Errors::unknownEntity; }
+
+			conditionalLoad(aQuery.join.leftTable, aQuery.whereFilter, theLeftRows);
+			conditionalLoad(aQuery.join.rightTable, aQuery.whereFilter, theRightRows);
+
+			applyJoin(theLeftRows, theRightRows, theOutputRows, aQuery);
+		}
+		else {
+			conditionalLoad(aQuery.EntityName, aQuery.whereFilter, theOutputRows);
+		}
+
+		// Order by
+		if (aQuery.orderNames.size() != 0) {
+			sortRows(aQuery.orderNames[0], theOutputRows);
+		}
+		// Apply Limit
+		applyLimit(theOutputRows, anOutput, aQuery);
+	}
+
+	void Database::updateRows(SQLQuery& aQuery, KeyValues aReplaceMap, std::ostream& anOuptut)
+	{
+		uint64_t theRowCount = 0;
+
+		if (entityBlockMap.count(aQuery.EntityName) == 0) { throw Errors::unknownTable; }
+
+		Row theRow;
+		storage->iterate([&](Block& aBlock, uint64_t anIndex) {
+
+			theRow.decode(aBlock);
+			uint64_t theNextPtr = aBlock.header.nextPtr;
+
+			if (aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
+				//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
+
+				for (auto& thePairs : aReplaceMap) {
+					theRow.set(thePairs.first, thePairs.second);
+				}
+				theRow.encode(aBlock.reset());
+				storage->writeBlock(anIndex, aBlock);
+				++theRowCount;
+			}
+
+			return theNextPtr;
+
+			}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
+
+		anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
+	}
+
+	void Database::deleteRows(SQLQuery& aQuery, std::ostream& anOuptut)
+	{
+		uint64_t theRowCount = 0;
+
+		if (entityBlockMap.count(aQuery.EntityName) == 0) { throw Errors::unknownTable; }
+		std::string thePrimaryKey = entityMap[aQuery.EntityName]->getPrimaryKey()->getName();
+
+		Row theRow;
+		storage->iterate([&](Block& aBlock, uint64_t anIndex) {
+
+			theRow.decode(aBlock);
+			uint64_t theNextPtr = aBlock.header.nextPtr;
+
+			if ( aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
+				//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
+				storage->removeBlock(anIndex);
+				indexMap[aQuery.EntityName]->erase(theRow.getData()[thePrimaryKey]);
+
+				++theRowCount;
+			}
+
+			return theNextPtr;
+
+			}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
+
+		anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
+	}
+
+	void Database::showIndices(std::string aTableName, std::string aKeyName, std::ostream& anOutput)
+	{
+		TableView theTable({ aKeyName, "Block Number" }, { 20, 20 });
+
+		uint64_t theCount = 0;
+		indexMap[aTableName]->eachKV([&](const Value& aValue, uint64_t theBlockIndex) {
+			theTable.insertRow(BasicTypes::toString(aValue), theBlockIndex);
+			++theCount;
+			return true;
+			});
+		theTable.show(anOutput);
+		anOutput << Helpers::rowsInSet(theCount, Config::getTimer().elapsed());
+
+	}
+
+	void Database::showIndexes(std::ostream& anOutput)
+	{
+		TableView theTable({ "table", "fields(s)" }, { 20, 20 });
+		size_t theCount = 0;
+		for (auto& theIndex : indexMap) {
+			theTable.insertRow(theIndex.first, theIndex.second->getKeyName());
+			++theCount;
+		}
+		theTable.show(anOutput);
+		anOutput << Helpers::rowsInSet(theCount, Config::getTimer().elapsed());
+
+	}
+
+	void Database::insertRows(std::string aName, std::vector<std::string> aNameList,
+		std::vector<std::vector<Value>> aValuesList) {
+		if (entityMap.count(aName) > 0) {
+			RowsOpt theRows;
+			uint64_t theBlockIndex;
+			Entity& theEntity = *entityMap[aName];
+			Index& theIndex = *indexMap[aName];
+			theEntity.buildRows(aNameList, aValuesList, theRows);
+
+			for (auto& aRow : theRows) {
+				if (aRow) {
+					//write row as block
+					// TODO: Refactor block for reset capability
+					Block theBlock; // Need to make a new block for writing storage
+					aRow.value().entityId = theEntity.getEntityIndex();
+					aRow.value().encode(theBlock);
+					theBlockIndex = storage->writeNewBlock(theBlock, entityBlockMap[aName]);
+
+					// Add to index
+					theIndex.insertKV(aRow.value().getData()[theEntity.getPrimaryKey()->getName()], theBlockIndex);
+				}
+				else {
+					throw Errors::invalidArguments;
+				}
+			}
+		}
+	}
+
+	// USE: Call this to dump the db for debug purposes...
+	void Database::dump(std::ostream& anOutput) {
+		TableView theTable(dbDumpHeaders, dbDumpWidths);
+		Block theBlock;
+
+		storage->each([&](const Block& aBlock, uint64_t anIndex) {
+			theTable.insertRow(anIndex,
+				typeStringMap.at(aBlock.header.type),
+				aBlock.header.index,
+				aBlock.header.prevPtr,
+				aBlock.header.nextPtr);
+			return true;
+			});
+
+		theTable.show(anOutput);
+	}
+
+	uint64_t Database::getBlockCount() {
+		return storage->getUsedBlockCount();
+	}
 }
