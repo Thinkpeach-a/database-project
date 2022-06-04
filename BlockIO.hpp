@@ -17,6 +17,7 @@
 
 #include "Helpers.hpp"
 #include "Errors.hpp"
+#include "LRUCache.hpp"
 
 namespace ECE141 {
 
@@ -210,6 +211,8 @@ namespace ECE141 {
 	protected:
 		// Reference to .db files
 		std::fstream& stream;
+
+		std::unique_ptr<LRUCache<uint64_t, Block>> cache;
 	};
 
 }

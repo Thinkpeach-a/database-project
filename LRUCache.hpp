@@ -29,7 +29,7 @@ namespace ECE141 {
 	template<typename KeyT, typename ValueT>
 	inline void LRUCache<KeyT, ValueT>::put(const KeyT& aKey, const ValueT& aValue)
 	{
-		if (cacheMap.size() == maxsize) { //If cache is full, replace
+		if (cacheMap.size() == maxsize && maxsize != 0) { //If cache is full, replace
 			auto theIter = usedMap.begin();
 			while (theIter != usedMap.end()) {
 				if (theIter->second == false) {
