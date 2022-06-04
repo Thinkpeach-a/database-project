@@ -151,7 +151,7 @@ namespace ECE141 {
 		uint64_t theIndexBlockNum = storage->getFreeBlockIndex();
 		auto     thePrimaryKey = anEntity.getPrimaryKey();
 
-		indexMap[theName] = std::shared_ptr<Index>(new Index(storage, CreateIndex(), thePrimaryKey->getName(), theIndexBlockNum, thePrimaryKey->getType()));
+		indexMap[theName] = std::make_shared<Index>(storage, CreateIndex(), thePrimaryKey->getName(), theIndexBlockNum, thePrimaryKey->getType());
 		indexBlockMap[theName] = theIndexBlockNum;
 
 		updateEntityMetaBlock();
@@ -194,7 +194,7 @@ namespace ECE141 {
 			
 
 			entityMap[theEntityName] = std::make_shared<Entity>(theEntity);
-			indexMap[theEntityName] = std::shared_ptr<Index>(new Index(storage, LoadIndex(), theEntity.getPrimaryKey()->getName(), indexBlockMap[theEntityName]));
+			indexMap[theEntityName] = std::make_shared<Index>(storage, LoadIndex(), theEntity.getPrimaryKey()->getName(), indexBlockMap[theEntityName]);
 		}
 		
 

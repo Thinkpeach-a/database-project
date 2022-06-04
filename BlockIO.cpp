@@ -91,7 +91,7 @@ namespace ECE141 {
 	//---------------------------------------------------
 
 	BlockIO::BlockIO(std::fstream& aStream) : stream(aStream) {
-		cache = std::make_unique<LRUCache<uint64_t, Block>>(Config::getCacheSize(CacheType::block));
+		//cache = std::make_unique<LRUCache<uint64_t, Block>>(Config::getCacheSize(CacheType::block));
 	}
 	// USE: write data a given block (after seek)
 	void BlockIO::writeBlock(uint64_t aBlockNum, Block& aBlock) {

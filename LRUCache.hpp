@@ -71,7 +71,7 @@ namespace ECE141 {
 	template<typename KeyT, typename ValueT>
 	inline bool LRUCache<KeyT, ValueT>::contains(const KeyT& aKey) const
 	{
-		return cacheMap.count(aKey);
+		return cacheMap.count(aKey) != 0;
 	}
 
 	template<typename KeyT, typename ValueT>
