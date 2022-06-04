@@ -44,8 +44,8 @@ namespace ECE141 {
 						break;
 					}
 					else {
-						++theIter;
 						theIter->second = false;
+						++theIter;
 					}
 				}
 				if (theIter == usedMap.end()) { // if all blocks were recently used, remove first one
@@ -59,6 +59,12 @@ namespace ECE141 {
 			cacheMap[aKey] = aValue;
 			//return theMissFlag;
 		}
+
+		if (0 == maxsize) {return;}
+
+
+
+
 	}
 
 	template<typename KeyT, typename ValueT>
