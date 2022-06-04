@@ -148,21 +148,21 @@ namespace ECE141 {
 
 		// Default encode and decode don't really work very well if the number of indices overflow a single block 
 		// Might want to use alternate interface
-		void encodeData() { // no overload
-			Block theBlock;
-			uint64_t thePrevBlockInd = blockNum;
+		//void encodeData() { // no overload
+		//	Block theBlock;
+		//	uint64_t thePrevBlockInd = blockNum;
 
-			for (auto& theDataItr : data) {
-				// while block is not full
+		//	for (auto& theDataItr : data) {
+		//		// while block is not full
 
-				thePrevBlockInd = storage->writeNewBlock(theBlock, thePrevBlockInd);
-			}
-		}
+		//		thePrevBlockInd = storage->writeNewBlock(theBlock, thePrevBlockInd);
+		//	}
+		//}
 
-		void decodeData() {
-			//student implement...
-			//return StatusResult{ Errors::noError };
-		}
+		//void decodeData() {
+		//	//student implement...
+		//	//return StatusResult{ Errors::noError };
+		//}
 
 		bool each(BlockVisitor aVisitor) {
 			Block theBlock;

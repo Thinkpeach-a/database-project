@@ -76,7 +76,7 @@ namespace ECE141 {
 		dataStream.flush();
 
 		return true;
-	}; // Add Row to Header
+	} // Add Row to Header
 
 	template <typename T>
 	bool TableView::isStreamable(T anObject) {
