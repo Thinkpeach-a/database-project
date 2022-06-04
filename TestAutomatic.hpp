@@ -1073,7 +1073,7 @@ namespace ECE141 {
         if(theResult) {
           double theAvgTime2=std::accumulate(
                   theTimes.begin(), theTimes.end(), 0.0) / theTimes.size();
-          std::cout << "With Cache Time: " << theAvgTime << "\n";
+          std::cout << "With Cache Time: " << theAvgTime2 << "\n";
           return theAvgTime2<theAvgTime;
         }
       }
