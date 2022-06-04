@@ -7,6 +7,7 @@
 #ifndef Config_h
 #define Config_h
 #include <sstream>
+#include <filesystem>
 #include "Timer.hpp"
 
 namespace ECE141 {
@@ -27,6 +28,16 @@ namespace ECE141 {
         return std::string("/tmp");
       #endif
     }
+
+    static const std::string getScriptPath() {
+        return getStoragePath(); // Can customize for different path
+    }
+
+    static std::string getScriptFilepath(const std::string& aScriptName) {
+        std::ostringstream theStream;
+        theStream << Config::getScriptPath() << "/" << aScriptName << ".db";
+        return theStream.str();
+    }
     
     static std::string getDBPath(const std::string &aDBName) {
       std::ostringstream theStream;
@@ -41,19 +52,21 @@ namespace ECE141 {
     
     //cachetype: block, row, view...
     static size_t getCacheSize(CacheType aType) {
-      return cacheSize[(int)aType];
+      return Config::cacheSize[(int)aType];
     }
 
     static void setCacheSize(CacheType aType, size_t aSize) {
-      cacheSize[(int)aType]=aSize;
+      Config::cacheSize[(int)aType]=aSize;
     }
     
     //cachetype: block, row, view...
     static bool useCache(CacheType aType) {
-      return cacheSize[(int)aType]>0;
+      return Config::cacheSize[(int)aType]>0;
     }
 
     static bool useIndex() {return true;}
+
+    static std::string getVersion() { return "1.0"; }
         
   };
 

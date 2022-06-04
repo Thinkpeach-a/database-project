@@ -14,6 +14,7 @@
 #include <initializer_list>
 #include <algorithm>
 #include <random>
+#include <numeric>
 
 #include "Application.hpp"
 #include "AboutUs.hpp"
@@ -22,6 +23,7 @@
 #include "FolderReader.hpp"
 #include "TestSequencer.hpp"
 #include "Faked.hpp"
+#include "Timer.hpp"
 #include "ScriptRunner.hpp"
 
 void showErrors(ECE141::StatusResult &aResult, std::ostream &anOutput) {
@@ -122,7 +124,7 @@ namespace ECE141 {
     
     TestAutomatic(std::ostream &anOutput) : output(anOutput) {}
     
-    ~TestAutomatic() {std::cout << "Test Version 1.96\n";}
+    ~TestAutomatic() {std::cout << "Test Version 1.95\n";}
     
     void addUsersTable(std::ostream &anOutput) {
       anOutput << "create table Users (";
@@ -168,7 +170,6 @@ namespace ECE141 {
     }
 
     StatusResult doScriptTest(std::istream &anInput, std::ostream &anOutput) {
-      ECE141::Config::setCacheSize(CacheType::block,30);
       ECE141::Application theApp(anOutput);
       ScriptRunner        theRunner(theApp);
       return theRunner.run(anInput, anOutput);
@@ -188,7 +189,7 @@ namespace ECE141 {
       if(theResult) {
         const char* theLines[]={
           theInput.c_str(),
-          "Version 10", "Help system available",
+          "Version 0.9", "Help system available",
           "DB::141 is shutting down"
         };
         
@@ -988,21 +989,108 @@ namespace ECE141 {
       
     }
 
-    bool doBlockCacheTest() {
-      bool theResult=false;
+    bool doIOTest(double &anElapsed, char aPrefix) {
+  
+      std::string theDBName1(getRandomDBName(aPrefix));
+      std::stringstream theStream1;
+      theStream1 << "create database " << theDBName1 << ";\n";
+      theStream1 << "use " << theDBName1 << ";\n";
+      
+      addUsersTable(theStream1);
+      insertUsers(theStream1, 0, 10);
+      insertFakeUsers(theStream1,50,4);
+
+      theStream1 << "select * from Users;\n";
+      theStream1 << "delete from Users where age>50;\n";
+      theStream1 << "select * from Users;\n";
+      theStream1 << "select * from Users;\n"; //caches should help here...
+      theStream1 << "drop database " << theDBName1 << ";\n";
+      theStream1 << "quit;\n";
+      
+      std::stringstream theInput(theStream1.str());
+      std::stringstream theOutput;
+
+      Timer theTimer;
+
+      bool theResult=doScriptTest(theInput,theOutput);
+      anElapsed=theTimer.elapsed();
+      
+      if(theResult) {
+        std::string tempStr=theOutput.str();
+        output << "output \n" << tempStr << "\n";
+        //std::cout << tempStr << "\n";
+        
+        Responses theResponses;
+        size_t theCount=analyzeOutput(theOutput,theResponses);
+        Expected theExpected({
+          {Commands::createDB,1},    {Commands::useDB,0},
+          {Commands::createTable,1}, {Commands::insert,10},
+          {Commands::insert,50},     {Commands::insert,50},
+          {Commands::insert,50},     {Commands::insert,50},
+          {Commands::select,210},    {Commands::delet,1,'>'},
+          {Commands::select,5,'>'},  {Commands::select,5,'>'},
+          {Commands::dropDB,0},
+        });
+        if(!theCount || !(theExpected==theResponses)) {
+          theResult=false;
+        }
+      }
       return theResult;
+    }
+    
+    bool doCacheTest(CacheType aType, size_t aCapacity) {
+      
+      //first-- let's test without the cache...
+      Config::setCacheSize(aType, 0);
+      char  theChar{'P'};
+      
+      std::vector<double> theTimes;
+      bool theResult{true};
+      for(size_t i=0;i<5;i++) {
+        if(theResult) {
+          double theTime{0.0};
+          if((theResult=doIOTest(theTime,theChar++))) {
+            theTimes.push_back(theTime);
+          }
+        }
+      }
+
+      if(theResult) {
+        double theAvgTime=std::accumulate(
+                theTimes.begin(), theTimes.end(), 0.0) / theTimes.size();
+        
+        Config::setCacheSize(aType, aCapacity);
+        theTimes.clear();
+        for(size_t i=0;i<5;i++) {
+          if(theResult) {
+            double theTime2{0.0};
+            if((theResult=doIOTest(theTime2,theChar++))) {
+              theTimes.push_back(theTime2);
+            }
+          }
+        }
+        
+        if(theResult) {
+          double theAvgTime2=std::accumulate(
+                  theTimes.begin(), theTimes.end(), 0.0) / theTimes.size();
+          return theAvgTime2<theAvgTime;
+        }
+      }
+      
+      return theResult;
+    }
+
+    bool doBlockCacheTest() {
+      return doCacheTest(CacheType::block, 200);
     }
 
     bool doRowCacheTest() {
-      bool theResult=false;
-      return theResult;
+      return doCacheTest(CacheType::row, 200);
     }
 
     bool doViewCacheTest() {
-      bool theResult=false;
-      return theResult;
+      return doCacheTest(CacheType::view, 30);
     }
-
   };
 
 }
