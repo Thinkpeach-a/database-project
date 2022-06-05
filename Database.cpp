@@ -330,6 +330,8 @@ namespace ECE141 {
 				return aBlock.header.nextPtr;
 				}, theRowStart);
 		}
+		// Reset view
+		viewUpdated[anEnitityName] = true;
 	}
 
 	void Database::applyJoin(RowsPtr& aLeftRows, RowsPtr& aRightRows, RowsPtr& aOutputRows, SQLQuery& aQuery)
