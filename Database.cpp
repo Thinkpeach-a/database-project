@@ -424,10 +424,10 @@ namespace ECE141 {
 			}
 			theTable->insertRow(theColumnData);
 		}
-
-		
+		//return formatString("{0} rows in set ({1} secs)\n",
+		theTable->insertFooter(formatString("{0} rows in set ", theLimit));
 		theTable->show(anOutput);
-		anOutput << Helpers::rowsInSet(theLimit, Config::getTimer().elapsed());
+		anOutput << formatString("({0} secs)\n", Config::getTimer().elapsed());
 	}
 
 	std::shared_ptr<Row> Database::buildJoinedRow(std::shared_ptr<Row>& aFirstRow, Entity& aFirstEntity,
@@ -510,6 +510,7 @@ namespace ECE141 {
 			if (viewUpdated[aQuery.join.leftTable] && viewUpdated[aQuery.join.rightTable]) {
 				if (viewCache->contains(aQuery.selectString)) {
 					viewCache->get(aQuery.selectString)->show(anOutput);
+					anOutput << formatString("({0} secs)\n", Config::getTimer().elapsed());
 					return;
 				}
 			}
@@ -524,6 +525,7 @@ namespace ECE141 {
 			if (viewUpdated[aQuery.EntityName]) {
 				if (viewCache->contains(aQuery.selectString)) {
 					viewCache->get(aQuery.selectString)->show(anOutput);
+					anOutput << formatString("({0} secs)\n", Config::getTimer().elapsed());
 					return;
 				}
 			}
@@ -551,7 +553,7 @@ namespace ECE141 {
 			theRow.decode(aBlock);
 			uint64_t theNextPtr = aBlock.header.nextPtr;
 
-			if (aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
+			if (!aQuery.hasWhere || aQuery.whereFilter.matches(theRow.getData())) {
 				//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
 
 				for (auto& thePairs : aReplaceMap) {
@@ -584,7 +586,7 @@ namespace ECE141 {
 			theRow.decode(aBlock);
 			uint64_t theNextPtr = aBlock.header.nextPtr;
 
-			if (aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
+			if (!aQuery.hasWhere || aQuery.whereFilter.matches(theRow.getData())) {
 				//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
 				storage->removeBlock(anIndex);
 				indexMap[aQuery.EntityName]->erase(theRow.getData()[thePrimaryKey]);
@@ -597,7 +599,6 @@ namespace ECE141 {
 			}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
 
 		viewUpdated[aQuery.EntityName] = false;
-
 		anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
 	}
 
