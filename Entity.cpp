@@ -117,7 +117,7 @@ namespace ECE141 {
 		std::optional<Value> theTypedValue;
 		size_t theArrSize = aNameList.size();
 
-		bool theValidFlag = true;
+		//bool theValidFlag = true;
 		// Add user input values to non NULL fields, auto writes auto increment
 		for (auto& theRowValues : aValuesList) {
 			for (size_t theIndex = 0; theIndex < theArrSize; ++theIndex) {

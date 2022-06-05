@@ -168,13 +168,13 @@ namespace ECE141 {
 	  std::make_pair(Keywords::varchar_kw, DataTypes::varchar_type)
 	};
 
-	static inline Keywords gJoinTypes[5] = {
-	  Keywords::cross_kw, Keywords::full_kw, Keywords::inner_kw,
-	  Keywords::left_kw,  Keywords::right_kw
-	};
-
 	class Helpers {
 	public:
+
+		static inline Keywords gJoinTypes[5] = {
+			Keywords::cross_kw, Keywords::full_kw, Keywords::inner_kw,
+			Keywords::left_kw,  Keywords::right_kw
+		};
 
 		static bool file_exists(const std::string& aFilename) {
 			std::ifstream theStream(aFilename);

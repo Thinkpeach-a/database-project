@@ -132,11 +132,11 @@ namespace ECE141 {
 		std::string theDBPath = Config::getDBPath(theName);
 		Database*& theActiveDatabase = app->getDatabase();
 
-		uint64_t theBlockCount = 0;
+		//uint64_t theBlockCount = 0;
 		if (app->dbExists(theDBPath)) {
 			if (!theActiveDatabase) {} // if nullptr, skip next step
 			else if (theActiveDatabase->getName() == theName) {
-				theBlockCount = theActiveDatabase->getBlockCount();
+				theActiveDatabase->getBlockCount();
 				
 				delete theActiveDatabase;
 				theActiveDatabase = nullptr;
