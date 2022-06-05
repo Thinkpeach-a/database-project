@@ -168,7 +168,7 @@ namespace ECE141 {
 	  std::make_pair(Keywords::varchar_kw, DataTypes::varchar_type)
 	};
 
-	static Keywords gJoinTypes[] = {
+	static inline Keywords gJoinTypes[5] = {
 	  Keywords::cross_kw, Keywords::full_kw, Keywords::inner_kw,
 	  Keywords::left_kw,  Keywords::right_kw
 	};

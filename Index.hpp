@@ -146,24 +146,6 @@ namespace ECE141 {
 
 		void decode(Block& aBlock) override;
 
-		// Default encode and decode don't really work very well if the number of indices overflow a single block 
-		// Might want to use alternate interface
-		//void encodeData() { // no overload
-		//	Block theBlock;
-		//	uint64_t thePrevBlockInd = blockNum;
-
-		//	for (auto& theDataItr : data) {
-		//		// while block is not full
-
-		//		thePrevBlockInd = storage->writeNewBlock(theBlock, thePrevBlockInd);
-		//	}
-		//}
-
-		//void decodeData() {
-		//	//student implement...
-		//	//return StatusResult{ Errors::noError };
-		//}
-
 		bool each(BlockVisitor aVisitor) {
 			Block theBlock;
 			for (auto thePair : data) {
@@ -199,9 +181,9 @@ namespace ECE141 {
 		Storage*                      storage;
 		std::map<Value, uint64_t>     data;
 		DataTypes                     type;
+		uint64_t                      blockNum; //where index storage begins
 		std::string                   name;
 		bool                          changed;
-		uint64_t                      blockNum; //where index storage begins
 		uint64_t                      entityId;
 	}; //index
 
