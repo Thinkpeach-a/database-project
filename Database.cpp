@@ -49,6 +49,8 @@ namespace ECE141 {
 		Block theBlock;
 		encode(theBlock);
 		storage->writeMetaBlock(theBlock);
+
+		viewCache = std::make_unique<LRUCache<std::string, TableView>>(Config::getCacheSize(CacheType::view));
 	}
 
 	// Load existing database from file, based on path specified in Config.
@@ -70,11 +72,8 @@ namespace ECE141 {
 			storage->readBlock(0, theBlock);
 			decode(theBlock);
 
+			viewCache = std::make_unique<LRUCache<std::string, TableView>>(Config::getCacheSize(CacheType::view));
 			loadEntityIndex();
-
-			//for (auto const& theMapIter : entityBlockMap) {
-			//	loadEntity(theMapIter.second);
-			//}
 		}
 	}
 
@@ -96,8 +95,6 @@ namespace ECE141 {
 		for (auto& theIndexPair : indexMap) {
 			theIndexPair.second.reset();
 		}
-
-
 		delete storage;
 	}
 
@@ -117,13 +114,12 @@ namespace ECE141 {
 
 		indexMap.erase(aTableName);
 
-
 		size_t theIndexBlock = indexBlockMap[aTableName];
 		indexBlockMap.erase(aTableName);
 
 		storage->releaseBlockUntil([](const Block&, uint64_t) {return true; }, theIndexBlock);
 
-
+		viewUpdated.erase(aTableName);
 		updateEntityMetaBlock();
 	}
 
@@ -145,6 +141,7 @@ namespace ECE141 {
 		// Add data to memory
 		entityBlockMap[theName] = theIndex;
 		entityMap[theName] = std::make_shared<Entity>(anEntity);
+		viewUpdated[theName] = true;
 
 
 		//Construct Index
@@ -195,9 +192,9 @@ namespace ECE141 {
 
 			entityMap[theEntityName] = std::make_shared<Entity>(theEntity);
 			indexMap[theEntityName] = std::make_shared<Index>(storage, LoadIndex(), theEntity.getPrimaryKey()->getName(), indexBlockMap[theEntityName]);
+			// caching map
+			viewUpdated[theEntityName] = true;
 		}
-
-
 
 	}
 
@@ -358,7 +355,7 @@ namespace ECE141 {
 			while (theRightTableIter != aRightRows.end()) {
 				Value theLeftValue = theLeftRow->getData()[aQuery.join.leftValue];
 				Value theRightValue = (*theRightTableIter)->getData()[aQuery.join.rightValue];
-				
+
 				if (theLeftValue > theRightValue) {
 					++theRightTableIter;
 				}
@@ -493,17 +490,20 @@ namespace ECE141 {
 
 	void Database::selectFromTable(SQLQuery& aQuery, std::ostream& anOutput)
 	{
-		if (!(entityMap.count(aQuery.EntityName) > 0)) {
-			throw Errors::unknownEntity;
-		}
+		if (!(entityMap.count(aQuery.EntityName) > 0)) { throw Errors::unknownEntity; }
 
 		RowsPtr theLeftRows;
 		RowsPtr theRightRows;
 		RowsPtr theOutputRows;
 
 		if (aQuery.hasJoin) {
-
 			if (!(entityMap.count(aQuery.join.rightTable) > 0)) { throw Errors::unknownEntity; }
+			// if view is up to date and in cache
+			if (viewUpdated[aQuery.join.leftTable] && viewUpdated[aQuery.join.rightTable]) {
+				if (viewCache.contains());
+			}
+
+			
 
 			conditionalLoad(aQuery.join.leftTable, aQuery.whereFilter, theLeftRows);
 			conditionalLoad(aQuery.join.rightTable, aQuery.whereFilter, theRightRows);
@@ -549,6 +549,8 @@ namespace ECE141 {
 
 			}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
 
+		viewUpdated[aQuery.EntityName] = false;
+
 		anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
 	}
 
@@ -565,7 +567,7 @@ namespace ECE141 {
 			theRow.decode(aBlock);
 			uint64_t theNextPtr = aBlock.header.nextPtr;
 
-			if ( aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
+			if (aQuery.whereFilter.matches(theRow.getData()) || !aQuery.hasWhere) {
 				//TODO: Factor out has where, but it's quite readable, so I'll keep it for now
 				storage->removeBlock(anIndex);
 				indexMap[aQuery.EntityName]->erase(theRow.getData()[thePrimaryKey]);
@@ -576,6 +578,8 @@ namespace ECE141 {
 			return theNextPtr;
 
 			}, storage->getNextPointer(entityBlockMap[aQuery.EntityName])); // Start at the first row
+
+		viewUpdated[aQuery.EntityName] = false;
 
 		anOuptut << Helpers::QueryOk(theRowCount, Config::getTimer().elapsed());
 	}
@@ -633,6 +637,7 @@ namespace ECE141 {
 					throw Errors::invalidArguments;
 				}
 			}
+			viewUpdated[theEntity.getName()] = false;
 		}
 	}
 
