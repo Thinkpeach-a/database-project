@@ -68,7 +68,7 @@ namespace ECE141 {
 
 	void Index::loadIndexMap()
 	{
-		size_t theCounter = 0;
+		//size_t theCounter = 0;
 		size_t theNextBlockInd = storage->getNextPointer(blockNum);
 
 		uint16_t theValueIndex;

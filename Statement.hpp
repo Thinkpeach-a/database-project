@@ -35,6 +35,7 @@ namespace ECE141 {
 		/// <param name="aType"></param>
 		Statement(StatementType aType = StatementType::unknown_type) : type{ aType } {}
 
+		virtual ~Statement() = default;
 		/// <summary>
 		/// Uses TokenSequencer to generate statement.
 		/// </summary>

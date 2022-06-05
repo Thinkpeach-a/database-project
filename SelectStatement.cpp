@@ -41,7 +41,7 @@ namespace ECE141 {
 					parseLimit(aSequencer);
 					break;
 				default:
-					if (in_array<Keywords>(gJoinTypes, theKeyword)) {
+					if (in_array<Keywords>(Helpers::gJoinTypes, theKeyword)) {
 						parseJoin(aSequencer, theKeyword);
 					}
 					else {

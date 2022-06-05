@@ -105,11 +105,11 @@ namespace ECE141 {
 		auto theStatement = dynamic_cast<DropDBStatement*>(aStmt);
 		std::string theName = theStatement->getDBName();
 		std::string theDBPath = Config::getDBPath(theName);
-		uint64_t theBlockCount = 0;
+		//uint64_t theBlockCount = 0;
 		if (dbExists(theDBPath)) {
 			if (!activeDatabase) {} // if nullptr, skip next step
 			else if (activeDatabase->getName() == theName) {
-				theBlockCount = activeDatabase->getBlockCount();
+				activeDatabase->getBlockCount();
 				delete activeDatabase;
 				activeDatabase = nullptr;
 			}
@@ -161,7 +161,6 @@ namespace ECE141 {
 	{
 		if (activeDatabase) {
 			auto theStatement = dynamic_cast<DescribeTableStatement*>(aStmt);
-			uint64_t attributeCount = 0;
 			activeDatabase->describeTable(theStatement->getTableName(), output);
 			output << getTime();
 		}
@@ -184,7 +183,7 @@ namespace ECE141 {
 	void Application::showTables(Statement* aStmt)
 	{
 		if (activeDatabase) {
-			auto theStatement = dynamic_cast<ShowTablesStatement*>(aStmt);
+			//auto theStatement = dynamic_cast<ShowTablesStatement*>(aStmt);
 			activeDatabase->showTables(output);
 			output << getTime();
 		}
@@ -251,6 +250,8 @@ namespace ECE141 {
 				break;
 			case Keywords::help_kw:
 				theStatement = new Statement(StatementType::show_help);
+				break;
+			default:
 				break;
 			}
 		}

@@ -27,6 +27,8 @@ namespace ECE141 {
 	public:
 		virtual void  encode(Block& aBlock) = 0;
 		virtual void  decode(Block& aBlock) = 0;
+
+		virtual ~Storable() = default;
 	};
 
 	// Visitor Types

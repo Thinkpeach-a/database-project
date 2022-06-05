@@ -62,9 +62,9 @@ namespace ECE141 {
         // Build table Header
         std::vector<std::string> theTableHeader;
         std::string theEntityName;
-        for (auto& mapIter : leftRows) { // left table, then right
-            
-        } 
+        //for (auto& mapIter : leftRows) { // left table, then right
+        //    
+        //} 
 
         if (leftRows.size() == 0) { return; }
         // Sort both tables according to join column

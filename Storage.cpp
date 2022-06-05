@@ -93,7 +93,6 @@ namespace ECE141 {
 
 	uint64_t Storage::getFileBlockCount() {
 		// Save current pos
-		uint64_t theCurrentPos = stream.tellg();
 
 		// Find start count
 		stream.seekg(0, std::ios::beg);

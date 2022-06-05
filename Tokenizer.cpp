@@ -58,7 +58,7 @@ namespace ECE141 {
 	}
 
 	bool Tokenizer::next(int anOffset) {
-		int theTempIndex = index;
+		int theTempIndex = static_cast<int>(index);
 		theTempIndex += anOffset;
 		if (theTempIndex <= static_cast<int>(size()) && 0 <= theTempIndex) {
 			index = theTempIndex;

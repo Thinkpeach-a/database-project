@@ -10,7 +10,7 @@
 namespace ECE141 {
 	class ScriptProcessor : public CmdProcessor {
 	public:
-		ScriptProcessor(std::ostream aStream, Application* anApp) : app{ anApp }, CmdProcessor{ aStream } {
+		ScriptProcessor(std::ostream aStream, Application* anApp) : CmdProcessor{ aStream }, app{ anApp } {
 			nextProcessor = nullptr; }
 
 		CmdProcessor* recognizes(Tokenizer& aTokenizer) override;
