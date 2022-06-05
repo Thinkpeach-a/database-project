@@ -132,7 +132,7 @@ namespace ECE141 {
 	{
 		Database*& theActiveDatabase = app->getDatabase();
 		if (theActiveDatabase) {
-			auto theStatement = dynamic_cast<ShowTablesStatement*>(aStmt);
+			//auto theStatement = dynamic_cast<ShowTablesStatement*>(aStmt);
 			theActiveDatabase->showTables(output);
 		}
 		else {
