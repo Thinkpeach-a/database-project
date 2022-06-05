@@ -168,7 +168,7 @@ namespace ECE141 {
 
 	void Database::loadEntityIndex()
 	{
-		auto theIndexIter = indexBlockMap.begin();
+		//auto theIndexIter = indexBlockMap.begin();
 
 		Entity theEntity;
 
