@@ -13,8 +13,8 @@
 
 namespace ECE141 {
 
-	CmdProcessor::CmdProcessor(std::ostream& anOutput) : output{anOutput} {
-		nextProcessor = nullptr;
+	CmdProcessor::CmdProcessor(std::ostream& anOutput) : output{ anOutput }, nextProcessor{nullptr} {
+		
 	}
 
 	CmdProcessor::~CmdProcessor() { delete nextProcessor; }
