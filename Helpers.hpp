@@ -29,7 +29,7 @@ namespace ECE141 {
 		return false;
 	}
 
-	static bool file_exists(const std::string& aFilename) {
+	bool file_exists(const std::string& aFilename) {
 		std::ifstream theStream(aFilename);
 		return bool(theStream);
 	}
@@ -173,7 +173,7 @@ namespace ECE141 {
 	  std::make_pair(Keywords::varchar_kw, DataTypes::varchar_type)
 	};
 
-	static ECE141::Keywords gJoinTypes[] = {
+	static Keywords gJoinTypes[] = {
 	  Keywords::cross_kw, Keywords::full_kw, Keywords::inner_kw,
 	  Keywords::left_kw,  Keywords::right_kw
 	};
