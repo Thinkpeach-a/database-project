@@ -29,11 +29,6 @@ namespace ECE141 {
 		return false;
 	}
 
-	bool file_exists(const std::string& aFilename) {
-		std::ifstream theStream(aFilename);
-		return bool(theStream);
-	}
-
 	static std::map<std::string, Operators> gExpressionOps = {
 	  {"=",   Operators::equal_op},
 	  {"<",   Operators::lt_op},
@@ -180,6 +175,11 @@ namespace ECE141 {
 
 	class Helpers {
 	public:
+
+		static bool file_exists(const std::string& aFilename) {
+			std::ifstream theStream(aFilename);
+			return bool(theStream);
+		}
 
 		static uint32_t hashString(const char* str) {
 			const int gMultiplier = 37;

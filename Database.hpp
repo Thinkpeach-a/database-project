@@ -86,7 +86,7 @@ namespace ECE141 {
 		// Keeps tracks of the total number of entities we have
 		uint64_t       entityCount = 0;
 
-		Storage* storage;  //storage
+		Storage* storage = nullptr;  //storage
 
 		//std::map<std::string, Entity> entities;
 		//std::map<std::string, Rows> tableRows; //storage of rows

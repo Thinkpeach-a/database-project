@@ -37,7 +37,7 @@ namespace ECE141 {
 		ScriptStatement* theStatement = dynamic_cast<ScriptStatement*>(aStmt);
 		std::string theScriptName = Config::getScriptFilepath(theStatement->getScriptName());
 
-		if (file_exists(theScriptName)) {
+		if (Helpers::file_exists(theScriptName)) {
 			std::ifstream theStream(theScriptName);
 			
 			if (theStream) {
