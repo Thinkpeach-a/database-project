@@ -244,7 +244,7 @@ namespace ECE141 {
 
 		// Read keys and values from payload into table
 		aBlock.readFromPayload(theTableCount);
-		for (auto theIndex = 0; theIndex < theTableCount; ++theIndex) {
+		for (uint64_t theIndex = 0; theIndex < theTableCount; ++theIndex) {
 			aBlock.readFromPayload(theKey);
 			aBlock.readFromPayload(theEntityValue);
 			aBlock.readFromPayload(theIndexValue);
@@ -434,8 +434,8 @@ namespace ECE141 {
 		std::shared_ptr<Row>& aSecondRow, Entity& aSecondEntity)
 	{
 		Row aRow;
-		auto& theFirstData = aFirstRow->getData();
-		auto& theSecondData = aSecondRow->getData();
+		//auto& theFirstData = aFirstRow->getData();
+		//auto& theSecondData = aSecondRow->getData();
 
 		for (auto& theAttribute : aFirstEntity.getAttributes()) {
 			aRow.set(theAttribute.getName(), aFirstRow->getData()[theAttribute.getName()]);

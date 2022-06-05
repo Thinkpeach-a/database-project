@@ -161,7 +161,7 @@ namespace ECE141 {
 	{
 		if (activeDatabase) {
 			auto theStatement = dynamic_cast<DescribeTableStatement*>(aStmt);
-			uint64_t attributeCount = 0;
+			//uint64_t attributeCount = 0;
 			activeDatabase->describeTable(theStatement->getTableName(), output);
 			output << getTime();
 		}

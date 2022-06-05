@@ -76,7 +76,7 @@ namespace ECE141 {
 		aStream << dataStream.str();
 		return true;
 	}
-	void TableView::insertLine(std::stringstream &aStream)
+	inline void TableView::insertLine(std::stringstream &aStream)
 	{
 		aStream << TableConsts::TABLE_CORNER
 			<< std::string(totalDataWidth, TableConsts::HORIZONTAL_LINE)
