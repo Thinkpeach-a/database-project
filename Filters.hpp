@@ -37,7 +37,8 @@ namespace ECE141 {
 
     //---------------------------------------------------
 
-    struct Expression {
+    class Expression {
+    public:
         Operand     lhs = Operand();  //id
         Operand     rhs = Operand();  //usually a constant; maybe a field...
         Operators   op = Operators::unknown_op;   //=     //users.id=books.author_id
