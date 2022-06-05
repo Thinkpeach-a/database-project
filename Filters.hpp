@@ -52,8 +52,8 @@ namespace ECE141 {
             : lhs(aLHSOperand), rhs(aRHSOperand),
             op(anOp), logic(Logical::no_op) {}
 
-        Expression(const Logical& aLogic) :isLogical(true), logic(aLogic) {}
-        Expression(const Parentheses& aParen) :isParenthese(true), paren(aParen) {}
+        Expression(const Logical& aLogic) : logic(aLogic), isLogical(true) {}
+        Expression(const Parentheses& aParen) : paren(aParen), isParenthese(true) {}
         Expression() {}
 
         bool operator()(KeyValues& aList);

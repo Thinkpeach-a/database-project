@@ -88,7 +88,7 @@ namespace ECE141 {
 	template <typename T>
 	inline void TableView::insertCol(std::stringstream& aStream, T anElement, uint64_t aWidth) {
 		aStream << std::setw(aWidth) << std::left << anElement << TableConsts::COLUMN_END;
-	};
+	}
 }
 
 #endif
