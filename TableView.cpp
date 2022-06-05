@@ -39,9 +39,15 @@ namespace ECE141 {
 
 	TableView::TableView(const TableView& aCopy)
 	{
+		*this = aCopy;
+	}
+
+	TableView& TableView::operator=(const TableView& aCopy)
+	{
 		dataStream << aCopy.dataStream.rdbuf();
 		columnWidths = aCopy.columnWidths;
 		totalDataWidth = aCopy.totalDataWidth;
+		return *this;
 	}
 
 	bool TableView::insertRow(std::vector<Value>& aValueVector) {

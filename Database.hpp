@@ -110,7 +110,7 @@ namespace ECE141 {
 
 
 		// View Cache
-		std::unique_ptr<LRUCache<std::string, TableView>> viewCache; // "Select * from Table"
+		std::unique_ptr<LRUCache<std::string, std::shared_ptr<TableView>>> viewCache; // "Select * from Table"
 		std::unordered_map <std::string, bool> viewUpdated; // EntityName, updatedFlag
 		//-------------------------------------------------------------
 		// Helper Functions

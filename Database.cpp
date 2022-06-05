@@ -49,7 +49,7 @@ namespace ECE141 {
 		encode(theBlock);
 		storage->writeMetaBlock(theBlock);
 
-		viewCache = std::make_unique<LRUCache<std::string, TableView>>(Config::getCacheSize(CacheType::view));
+		viewCache = std::make_unique<LRUCache<std::string, std::shared_ptr<TableView>>>(Config::getCacheSize(CacheType::view));
 	}
 
 	// Load existing database from file, based on path specified in Config.
@@ -71,7 +71,7 @@ namespace ECE141 {
 			storage->readBlock(0, theBlock);
 			decode(theBlock);
 
-			viewCache = std::make_unique<LRUCache<std::string, TableView>>(Config::getCacheSize(CacheType::view));
+			viewCache = std::make_unique<LRUCache<std::string, std::shared_ptr<TableView>>>(Config::getCacheSize(CacheType::view));
 			loadEntityIndex();
 		}
 	}
@@ -398,7 +398,12 @@ namespace ECE141 {
 			theHeaderWidths.push_back(20);
 		}
 
-		TableView theTable(theRowHeader, theHeaderWidths);
+		auto theTable = std::make_shared<TableView>(theRowHeader, theHeaderWidths);
+
+		//TableView theTable(theRowHeader, theHeaderWidths);
+		if (viewCache->maxSize() != 0) {
+			viewCache->put(aQuery.selectString, theTable);
+		}
 
 		std::vector<Value> theColumnData;
 		// Insert Rows into the Table
@@ -415,9 +420,11 @@ namespace ECE141 {
 			for (auto& theRowName : theRowHeader) {
 				theColumnData.push_back(theRowData[theRowName]);
 			}
-			theTable.insertRow(theColumnData);
+			theTable->insertRow(theColumnData);
 		}
-		theTable.show(anOutput);
+
+		
+		theTable->show(anOutput);
 		anOutput << Helpers::rowsInSet(theLimit, Config::getTimer().elapsed());
 	}
 
@@ -500,7 +507,7 @@ namespace ECE141 {
 			// if view is up to date and in cache
 			if (viewUpdated[aQuery.join.leftTable] && viewUpdated[aQuery.join.rightTable]) {
 				if (viewCache->contains(aQuery.selectString)) {
-					viewCache->get(aQuery.selectString).show(anOutput);
+					viewCache->get(aQuery.selectString)->show(anOutput);
 					return;
 				}
 			}
@@ -514,7 +521,7 @@ namespace ECE141 {
 
 			if (viewUpdated[aQuery.EntityName]) {
 				if (viewCache->contains(aQuery.selectString)) {
-					viewCache->get(aQuery.selectString).show(anOutput);
+					viewCache->get(aQuery.selectString)->show(anOutput);
 					return;
 				}
 			}
