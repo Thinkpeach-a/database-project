@@ -53,6 +53,11 @@ namespace ECE141 {
 				throw Errors::invalidArguments;
 			}
 		}
+		//SelectStatement parse
+			aSequencer.reset().iterate([&](const Token& aToken) {
+			query.selectString += aToken.data + ' ';
+			return aToken.data == ";";
+				});
 	}
 	void SelectStatement::parseFieldNames(TokenSequencer& aSequencer) {
 		if (!aSequencer.loopParse(query.columnNames,

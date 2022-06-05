@@ -33,6 +33,8 @@ namespace ECE141 {
 		/// <param name="aWidthList"></param>
 		TableView(std::vector<std::string> aHeaderList = std::vector<std::string>{"Header"}, std::vector<uint64_t> aWidthList=std::vector<uint64_t>{20}); // With headers/spacing information
 
+		TableView(const TableView& aCopy);
+		TableView& operator=(const TableView& aCopy);
 
 		template<typename ... Args>
 		bool insertRow(Args ... anArgList);

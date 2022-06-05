@@ -62,9 +62,6 @@ namespace ECE141 {
 
 		if (0 == maxsize) {return;}
 
-
-
-
 	}
 
 	template<typename KeyT, typename ValueT>

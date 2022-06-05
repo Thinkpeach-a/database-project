@@ -725,11 +725,11 @@ namespace ECE141 {
       theStream1 << "select * from Users;\n";
 
       theStream1 << "DELETE from Users where zipcode=92120;\n";
-      theStream1 << "select * from Users\n";
+      theStream1 << "select * from Users;\n";
       theStream1 << "DELETE from Users where zipcode<92124;\n";
-      theStream1 << "select * from Users\n";
+      theStream1 << "select * from Users;\n";
       theStream1 << "DELETE from Users where zipcode>92124;\n";
-      theStream1 << "select * from Users\n";
+      theStream1 << "select * from Users;\n";
       theStream1 << "drop database " << theDBName1 << ";\n";
       theStream1 << "quit;\n";
 
@@ -841,9 +841,9 @@ namespace ECE141 {
       addUsersTable(theStream1);
       insertUsers(theStream1,0,5);
 
-      theStream1 << "show tables\n";
+      theStream1 << "show tables;\n";
       theStream1 << "drop table Users;\n";
-      theStream1 << "show tables\n";
+      theStream1 << "show tables;\n";
       theStream1 << "drop database " << theDBName1 << ";\n";
       
       std::string temp(theStream1.str());
@@ -1017,7 +1017,7 @@ namespace ECE141 {
       
       if(theResult) {
         std::string tempStr=theOutput.str();
-        //output << "output \n" << tempStr << "\n"; //Uncomment
+        output << "output \n" << tempStr << "\n"; //Uncomment
         //std::cout << tempStr << "\n";
         
         Responses theResponses;

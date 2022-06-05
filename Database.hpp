@@ -19,6 +19,8 @@
 #include "BasicTypes.hpp"
 #include "Config.hpp"
 #include "Index.hpp"
+#include "LRUCache.hpp"
+#include "TableView.hpp"
 
 namespace ECE141 {
 	using ValueRowPair = std::pair<Value, Row>;
@@ -106,6 +108,10 @@ namespace ECE141 {
 		   {'U' , "Unknown"}
 		};
 
+
+		// View Cache
+		std::unique_ptr<LRUCache<std::string, std::shared_ptr<TableView>>> viewCache; // "Select * from Table"
+		std::unordered_map <std::string, bool> viewUpdated; // EntityName, updatedFlag
 		//-------------------------------------------------------------
 		// Helper Functions
 
@@ -129,27 +135,6 @@ namespace ECE141 {
 		std::shared_ptr<Row> buildJoinedRow(std::shared_ptr<Row>& aFirstRow, Entity& aLeftEntity, std::shared_ptr<Row>& aSecondRow, Entity& aRightEntity);
 	};
 
-
-	
-
-	//struct SortValuesLT {
-	//	SortValuesLT(std::string& aName) :theName{ aName } {}
-
-	//	std::string theName;
-	//	inline bool operator() (const ValueRowPair& aValue1, const ValueRowPair& aValue2) {
-	//		Value theFirstVal = aValue1.first;
-	//		Value theSecondVal = aValue2.first;
-
-	//		return BasicTypes::toString(theFirstVal) < BasicTypes::toString(theSecondVal);
-	//	}
-
-	//	inline bool operator() (Row& aValue1, Row& aValue2) {
-	//		Value theFirstVal = aValue1.getData()[theName];
-	//		Value theSecondVal = aValue2.getData()[theName];
-
-	//		return BasicTypes::toString(theFirstVal) < BasicTypes::toString(theSecondVal);
-	//	}
-	//};
 
 }
 #endif /* Database_hpp */

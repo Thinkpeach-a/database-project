@@ -33,6 +33,9 @@ namespace ECE141 {
         //Delete
         bool hasWhere = false;
         bool hasJoin = false;
+
+        //cache
+        std::string selectString = "";
     };
 }
 

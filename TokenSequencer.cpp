@@ -123,6 +123,22 @@ namespace ECE141 {
 		return *this;
 	}
 
+	TokenSequencer& TokenSequencer::iterate(CheckFcn aStopCondition)
+	{
+		Token theCurrentToken = tokenizer.current();
+
+		while (!(aStopCondition(theCurrentToken))) {
+			// Iterate tokenizer
+			if (tokenizer.more()) {
+				tokenizer.next();
+				theCurrentToken = tokenizer.current();
+			}
+			else { break; }
+		}
+		return *this;
+	}
+
+
 	std::string TokenSequencer::getData()
 	{
 		return tokenizer.current().data;
