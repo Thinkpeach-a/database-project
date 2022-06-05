@@ -252,6 +252,8 @@ namespace ECE141 {
 			case Keywords::help_kw:
 				theStatement = new Statement(StatementType::show_help);
 				break;
+			default:
+				break;
 			}
 		}
 		TokenSequencer aSeq(aTokenizer);
