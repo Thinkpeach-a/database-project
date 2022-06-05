@@ -109,7 +109,6 @@ namespace ECE141 {
 		Database*& theActiveDatabase = app->getDatabase();
 		if (theActiveDatabase) {
 			auto theStatement = dynamic_cast<DescribeTableStatement*>(aStmt);
-			uint64_t attributeCount = 0;
 			theActiveDatabase->describeTable(theStatement->getTableName(), output);
 		}
 		else {

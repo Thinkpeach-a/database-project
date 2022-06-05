@@ -31,7 +31,7 @@ namespace ECE141 {
 		/// </summary>
 		/// <param name="aHeaderList"></param>
 		/// <param name="aWidthList"></param>
-		TableView(std::vector<std::string> aHeaderList = std::vector<std::string>{"Header"}, std::vector<uint64_t> aWidthList=std::vector<uint64_t>{20}); // With headers/spacing information
+		TableView(std::vector<std::string> aHeaderList = std::vector<std::string>{ "Header" }, std::vector<uint64_t> aWidthList = std::vector<uint64_t>{ 20 }); // With headers/spacing information
 
 		TableView(const TableView& aCopy);
 		TableView& operator=(const TableView& aCopy);
@@ -50,7 +50,13 @@ namespace ECE141 {
 		template <typename T>
 		bool isStreamable(T anObject);
 
-		inline void insertLine(std::stringstream& aStream);
+		inline void insertLine(std::stringstream& aStream)
+		{
+			aStream << TableConsts::TABLE_CORNER
+				<< std::string(totalDataWidth, TableConsts::HORIZONTAL_LINE)
+				<< TableConsts::TABLE_CORNER
+				<< TableConsts::EOL;
+		}
 
 		template <typename T>
 		inline void insertCol(std::stringstream& aStream, T anElement, uint64_t aWidth);
@@ -69,7 +75,7 @@ namespace ECE141 {
 				if (!isStreamable(anArg) || theArgCount > theColCount) { return; }
 				insertCol(dataStream, anArg, columnWidths[theArgCount]);
 				++theArgCount;
-            return;
+				return;
 			}(anArgList), ...);
 
 		dataStream << TableConsts::EOL;
