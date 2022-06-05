@@ -154,7 +154,8 @@ namespace ECE141 {
 	};
 
 	// Helper functions for Value Type
-	namespace BasicTypes {
+	class BasicTypes {
+	public:
 		static Value toValue(const std::string& aValue, DataTypes aType) {
 
 			Value theValue;
@@ -217,7 +218,7 @@ namespace ECE141 {
 			}
 			return theStr;
 		}
-	}
+	};
 
 }
 #endif /* BasicTypes_h */
