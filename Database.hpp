@@ -20,6 +20,7 @@
 #include "Config.hpp"
 #include "Index.hpp"
 #include "LRUCache.hpp"
+#include "TableView.hpp"
 
 namespace ECE141 {
 	using ValueRowPair = std::pair<Value, Row>;

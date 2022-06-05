@@ -41,6 +41,7 @@ namespace ECE141 {
 		//Advanced Get Operations/ Parse Helper
 		TokenSequencer& loopParse(std::vector<std::string>& aValueList, CheckFcn aSkipCondition,
 			CheckFcn aStopCondition, CheckFcn aVerifyCondition);
+		TokenSequencer& iterate(CheckFcn aStopCondition);
 
 		std::string     getData();
 		Keywords        getKeyword();

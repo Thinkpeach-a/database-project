@@ -16,7 +16,6 @@
 #include "Database.hpp"
 #include "TableView.hpp"
 #include "BlockIO.hpp"
-#include "TableView.hpp"
 #include "BasicTypes.hpp"
 #include "Application.hpp"
 #include "Helpers.hpp"
@@ -500,10 +499,11 @@ namespace ECE141 {
 			if (!(entityMap.count(aQuery.join.rightTable) > 0)) { throw Errors::unknownEntity; }
 			// if view is up to date and in cache
 			if (viewUpdated[aQuery.join.leftTable] && viewUpdated[aQuery.join.rightTable]) {
-				if (viewCache.contains());
+				if (viewCache->contains(aQuery.selectString)) {
+					viewCache->get(aQuery.selectString).show(anOutput);
+					return;
+				}
 			}
-
-			
 
 			conditionalLoad(aQuery.join.leftTable, aQuery.whereFilter, theLeftRows);
 			conditionalLoad(aQuery.join.rightTable, aQuery.whereFilter, theRightRows);
@@ -511,6 +511,14 @@ namespace ECE141 {
 			applyJoin(theLeftRows, theRightRows, theOutputRows, aQuery);
 		}
 		else {
+
+			if (viewUpdated[aQuery.EntityName]) {
+				if (viewCache->contains(aQuery.selectString)) {
+					viewCache->get(aQuery.selectString).show(anOutput);
+					return;
+				}
+			}
+
 			conditionalLoad(aQuery.EntityName, aQuery.whereFilter, theOutputRows);
 		}
 
